@@ -6,7 +6,7 @@ import (
 	"io"
 	"log"
 	"net"
-	"os"
+	"novg/cdrserver/dbclient"
 )
 
 // Run launch listening server
@@ -50,13 +50,7 @@ func handleConnection(conn net.Conn) {
 			}
 		}
 
-		// TODO: send to database
-		f, err := os.OpenFile("out.log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
-		if err != nil {
-			log.Fatalf("error opening file: %v", err)
-		}
-		defer f.Close()
-		//
-		fmt.Fprint(f, message)
+		// send message to database
+		fmt.Fprint(dbclient.CallInfo, message)
 	}
 }
