@@ -2,8 +2,9 @@ package main
 
 import (
 	"log"
-	"novg/cdrserver/server"
 	"os"
+
+	"novg/cdrserver/server"
 )
 
 func main() {
@@ -15,5 +16,7 @@ func main() {
 
 	log.SetOutput(f)
 
+	// port := flag.Int("port", 2020, "`PORT` for listening of CDR clients")
+	// fmt.Printf("port: %d\n", *port)
 	server.Run()
 }

@@ -2,7 +2,7 @@ package dbclient
 
 import (
 	"fmt"
-	"regexp"
+	"log"
 	"strings"
 	"time"
 )
@@ -22,37 +22,24 @@ type callInfo struct {
 
 var (
 	// CallInfo incapsulates info about calls
-	CallInfo  *callInfo
-	rdate     *regexp.Regexp
-	rduration *regexp.Regexp
-	rspace    *regexp.Regexp
-	rletter   *regexp.Regexp
-	year      int
+	CallInfo *callInfo
+	year     int
 )
 
 func init() {
 	CallInfo = new(callInfo)
-	rdate = regexp.MustCompile(`(\d{2})(\d{2})(\d{2})(\d{2})`)
-	rduration = regexp.MustCompile(`(\d{1})(\d{2})(\d{2})`)
-	rspace = regexp.MustCompile(`\s+`)
-	rletter = regexp.MustCompile(`[[:alpha:]]`)
 	year = time.Now().Year()
 }
 
 func (h *callInfo) Write(p []byte) (n int, err error) {
-	p = rspace.ReplaceAll(p, []byte(" "))
-	sp := strings.TrimSpace(string(p))
-	parse(strings.Split(sp, " "), h)
+	sp := strings.Fields(string(p))
+	parse(sp, h)
 
-	fmt.Println(h.datetime + " " +
-		h.duration + "\t" +
-		h.seg + "\t" +
-		h.sop + "\t" +
-		h.dest + "\t" +
-		h.numin + "\t\t" +
-		h.numout + "\t\t" +
-		h.str1 + " " +
-		h.str2)
+	fmt.Printf("%s%9s%3s%2s%5s%15s%15s%5s%16s\n",
+		h.datetime, h.duration,
+		h.seg, h.sop, h.dest,
+		h.numin, h.numout,
+		h.str1, h.str2)
 
 	return len(p), nil
 }
@@ -62,25 +49,36 @@ func parse(line []string, h *callInfo) {
 		return
 	}
 
-	temp := rdate.FindStringSubmatch(line[0])
-	h.datetime = fmt.Sprintf("%d-%s-%s %s:%s", year, temp[1], temp[2], temp[3], temp[4])
+	var month, day, hours, minutes string
+	_, err := fmt.Sscanf(line[0], "%2s%2s%2s%2s", &month, &day, &hours, &minutes)
+	if err != nil {
+		log.Printf("%s is wrong datetime string", line[0])
+	}
+	h.datetime = fmt.Sprintf("%d-%s-%s %s:%s", year, month, day, hours, minutes)
 
-	temp = rduration.FindStringSubmatch(line[1])
-	h.duration = fmt.Sprintf("%d%s:%s:%s", 0, temp[1], temp[2], temp[3])
+	var seconds string
+	_, err = fmt.Sscanf(line[1], "%1s%2s%2s", &hours, &minutes, &seconds)
+	if err != nil {
+		log.Printf("%s is wrong duration string", line[1])
+	}
+	h.duration = fmt.Sprintf("%d%s:%s:%s", 0, hours, minutes, seconds)
 
-	if !rletter.MatchString(line[2]) {
+	f := func(r rune) bool {
+		return r < 'A' || r > 'z'
+	}
+	if strings.IndexFunc(line[2], f) != -1 {
 		h.seg = ""
 	} else {
 		h.seg = line[2]
 	}
 
 	if len(line) < 9 {
-		h.sop = "NULL"
+		h.sop = ""
 	} else {
 		h.sop = line[3]
 	}
 
-	if len(line) < 7 || rletter.MatchString(line[2]) && len(line) != 9 {
+	if len(line) < 7 || strings.IndexFunc(line[2], f) == -1 && len(line) != 9 {
 		h.dest = ""
 	} else {
 		h.dest = line[len(line)-5]
