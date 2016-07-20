@@ -9,10 +9,11 @@ import (
 	"novg/cdrserver/dbclient"
 )
 
-// Run launch listening server
-func Run() {
-	// Listen on TCP port 2112 on all interfaces.
-	ln, err := net.Listen("tcp4", ":2112")
+// Run launch listening server on port
+func Run(port int) {
+	// Listen on TCP port on all interfaces.
+	localPort := fmt.Sprintf(":%d", port)
+	ln, err := net.Listen("tcp4", localPort)
 	if err != nil {
 		log.Fatal(err)
 	}
