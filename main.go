@@ -1,16 +1,24 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
+	"fmt"
 	"log"
+	"novg/cdrserver/dbclient"
 	"novg/cdrserver/server"
 	"os"
 
+	_ "github.com/lib/pq"
 	"github.com/novg/ingo"
 )
 
 var (
-	port *int
+	port     *int
+	host     *string
+	name     *string
+	user     *string
+	password *string
 )
 
 func main() {
@@ -21,24 +29,34 @@ func main() {
 	defer f.Close()
 	log.SetOutput(f)
 
-	parseSettings()
+	initSettings()
 
+	dbinfo := fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable",
+		*host, *user, *password, *name)
+	db, err := sql.Open("postgres", dbinfo)
+	checkErr(err)
+	defer db.Close()
+
+	dbclient.InitDatabase(&db)
 	server.Run(*port)
 }
 
-func parseSettings() {
-	port = flag.Int("port", 2112, "`PORT` for listening of CDR clients (PBX)")
-	host := flag.String("host", "localhost", "`HOST` database")
-	base := flag.String("base", "calls_database", "`BASE` is name of database")
-	user := flag.String("user", "aastra", "`USER` is user of database")
-	password := flag.String("password", "aastra", "`PASSWORD` is password of database")
+func initSettings() {
+	port = flag.Int("cport", 2112, "`PORT` for listening of CDR clients (PBX)")
+	host = flag.String("host", "localhost", "`DB_HOST` database")
+	name = flag.String("name", "cdr_aastra", "`DB_NAME` is name of database")
+	user = flag.String("user", "aastra", "`DB_USER` is user of database")
+	password = flag.String("password", "aastra", "`DB_PASSWORD` is password of database")
 	if err := os.Setenv("CDRSERVERRC", "cdrserverrc"); err != nil {
 		log.Println(err)
 	}
 	if err := ingo.Parse("cdrserver"); err != nil {
 		log.Println(err)
 	}
+}
 
-	// TODO: delete
-	log.Println(*port, *host, *base, *user, *password)
+func checkErr(err error) {
+	if err != nil {
+		log.Panic(err)
+	}
 }

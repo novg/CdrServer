@@ -48,6 +48,7 @@ func handleConnection(conn net.Conn) {
 				return
 			default:
 				log.Printf("bad message: %v\r\n", err)
+				return
 			}
 		}
 

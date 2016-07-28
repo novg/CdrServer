@@ -34,13 +34,7 @@ func init() {
 func (h *callInfo) Write(p []byte) (n int, err error) {
 	sp := strings.Fields(string(p))
 	parse(sp, h)
-
-	fmt.Printf("%s%9s%3s%2s%5s%15s%15s%5s%16s\n",
-		h.datetime, h.duration,
-		h.seg, h.sop, h.dest,
-		h.numin, h.numout,
-		h.str1, h.str2)
-
+	sendToDB(h)
 	return len(p), nil
 }
 
