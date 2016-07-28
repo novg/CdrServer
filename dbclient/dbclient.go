@@ -30,9 +30,13 @@ func InitDatabase(pdb **sql.DB) {
 			"str1 VARCHAR, " +
 			"str2 VARCHAR" +
 			");")
+	makeIndex := fmt.Sprintf("CREATE INDEX datetime_idx ON calls (datetime);")
 
 	_, err := db.Exec(makeTable)
 	checkErr(err)
+	_, err = db.Exec(makeIndex)
+	checkErr(err)
+
 	stmt, err = db.Prepare(insertQuery)
 	checkErr(err)
 }
