@@ -10,7 +10,7 @@ import (
 	"os"
 
 	_ "github.com/lib/pq"
-	"github.com/novg/ingo"
+	"github.com/schachmat/ingo"
 )
 
 var (
@@ -22,7 +22,7 @@ var (
 )
 
 func main() {
-	f, err := os.OpenFile("listen.log", os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0666)
+	f, err := os.OpenFile("cdrserver.log", os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0666)
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
 	}
