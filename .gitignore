@@ -2,4 +2,5 @@
 *.exe*
 *.ini
 *rc
+*.bat
 .vscode

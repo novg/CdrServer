@@ -22,12 +22,13 @@ var (
 )
 
 func main() {
-	f, err := os.OpenFile("cdrserver.log", os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0666)
+	f, err := os.OpenFile(logPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
 	}
 	defer f.Close()
 	log.SetOutput(f)
+	log.Println("***************************")
 
 	initSettings()
 
@@ -43,16 +44,15 @@ func main() {
 
 func initSettings() {
 	port = flag.Int("cport", 2112, "`PORT` for listening of CDR clients (PBX)")
-	host = flag.String("host", "localhost", "`DB_HOST` database")
+	host = flag.String("host", "127.0.0.1", "`DB_HOST` database")
 	name = flag.String("name", "cdrbase", "`DB_NAME` is name of database")
 	user = flag.String("user", "aastra", "`DB_USER` is user of database")
 	password = flag.String("password", "aastra", "`DB_PASSWORD` is password of database")
-	// if err := os.Setenv("CDRSERVERRC", "cdrserverrc"); err != nil {
-	// 	log.Println(err)
-	// }
+
 	if err := ingo.Parse("cdrserver"); err != nil {
 		log.Println(err)
 	}
+
 }
 
 func checkErr(err error) {
