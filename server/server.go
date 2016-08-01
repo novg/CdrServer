@@ -6,11 +6,10 @@ import (
 	"io"
 	"log"
 	"net"
-	"novg/cdrserver/dbclient"
 )
 
 // Run launch listening server on port
-func Run(port int) {
+func Run(port int, cdr chan<- string) {
 	// Listen on TCP port on all interfaces.
 	localPort := fmt.Sprintf(":%d", port)
 	ln, err := net.Listen("tcp4", localPort)
@@ -30,11 +29,11 @@ func Run(port int) {
 		// multiplay connections may be servered concurently.
 		// go handleConnection(conn)
 		// will listen for message to process ending in newline (\n)
-		go handleConnection(conn)
+		go handleConnection(conn, cdr)
 	}
 }
 
-func handleConnection(conn net.Conn) {
+func handleConnection(conn net.Conn, cdr chan<- string) {
 	client := conn.RemoteAddr()
 	defer conn.Close()
 
@@ -53,6 +52,6 @@ func handleConnection(conn net.Conn) {
 		}
 
 		// send message to database
-		fmt.Fprint(dbclient.CallInfo, message)
+		cdr <- message
 	}
 }

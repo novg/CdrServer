@@ -7,7 +7,6 @@ import (
 	"time"
 )
 
-// Parser write message to stdout
 type callInfo struct {
 	datetime string
 	duration string
@@ -20,22 +19,18 @@ type callInfo struct {
 	str2     string
 }
 
-var (
-	// CallInfo incapsulates info about calls
-	CallInfo *callInfo
-	year     int
-)
+var year int
 
-func init() {
-	CallInfo = new(callInfo)
+// Run dbase client
+func Run(cdr <-chan string) {
 	year = time.Now().Year()
-}
-
-func (h *callInfo) Write(p []byte) (n int, err error) {
-	sp := strings.Fields(string(p))
-	parse(sp, h)
-	sendToDB(h)
-	return len(p), nil
+	h := new(callInfo)
+	for {
+		p := <-cdr
+		sp := strings.Fields(string(p))
+		parse(sp, h)
+		sendToDB(h) //
+	}
 }
 
 func parse(line []string, h *callInfo) {

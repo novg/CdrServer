@@ -38,7 +38,6 @@ func InitDatabase(pdb **sql.DB) {
 	checkErr(err)
 }
 
-// Run working with database
 func sendToDB(info *callInfo) {
 	_, err := stmt.Exec(info.datetime, info.duration, info.seg, info.sop, info.dest,
 		info.numin, info.numout, info.str1, info.str2)
