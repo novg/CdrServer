@@ -38,7 +38,7 @@ func main() {
 	checkErr(err)
 	defer db.Close()
 
-	cdr := make(chan string, 512)
+	cdr := make(chan string, 1024)
 
 	go server.Run(*port, cdr)
 	dbclient.InitDatabase(&db)
