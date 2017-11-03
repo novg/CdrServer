@@ -19,11 +19,11 @@ type callInfo struct {
 	str2     string
 }
 
-var year int
+// var year int
 
 // Run dbase client
 func Run(cdr <-chan string) {
-	year = time.Now().Year()
+	// year = time.Now().Year()
 	h := new(callInfo)
 	for {
 		p := <-cdr
@@ -39,6 +39,7 @@ func parse(line []string, h *callInfo) {
 	}
 
 	var month, day, hours, minutes string
+	year := time.Now().Year() //
 	_, err := fmt.Sscanf(line[0], "%2s%2s%2s%2s", &month, &day, &hours, &minutes)
 	if err != nil {
 		log.Printf("%s is wrong datetime string", line[0])
